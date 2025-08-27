@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TechFlair – MicroK8s Projekt</title>
-  <meta name="description" content="TechFlair – MicroK8s-Cluster mit Nginx. Ziele, Architektur, Deliverables und Doku – Website + persistente Auth." />
+  <title>TechFlair – Projektportal</title>
+  <meta name="description" content="TechFlair – MicroK8s-Projektportal mit Login-Gate. Landing für Besucher, Inhalte nach Anmeldung." />
   <link rel="icon" href="assets/techflair-favicon.png" type="image/png" />
   <style>
     :root{--bg:#0a0f1c;--fg:#e6edf3;--muted:#9fb1c3;--primary:#0ea5e9;--primary-2:#6366f1;--primary-contrast:#ffffff;--surface:#0f172a;--border:#1f2a3a;--shadow:0 14px 32px rgba(0,0,0,.55);--radius:1rem}
@@ -34,6 +34,9 @@
     .modal__panel{width:min(520px,92%);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.25rem}
     .tabs{display:flex;gap:.5rem;margin-bottom:.75rem}.tab{flex:1;padding:.55rem;text-align:center;border:1px solid var(--border);border-radius:.6rem;cursor:pointer}.tab[aria-selected="true"]{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:var(--primary-contrast)}
     .grid{display:grid;gap:.7rem}.row{display:grid;gap:.3rem}
+    .gate{display:grid;place-items:center;text-align:center;padding:4rem 0}
+    .gate h1{font-size:clamp(2rem,4vw,3rem);margin:.5rem 0 1rem}
+    .gate p{color:var(--muted);max-width:720px;margin:0 auto 1.2rem}
     @media (max-width:980px){.hero__grid{grid-template-columns:1fr}} @media (max-width:640px){.nav__links{display:none}.grid-3,.grid-2{grid-template-columns:1fr}}
   </style>
 </head>
@@ -41,12 +44,14 @@
   <header>
     <div class="container nav">
       <div class="brand">
-        <img class="brand__logo-img" src="assets/techflair-logo-full-transparent-v2.png" alt="TechFlair Logo" />
+        <!-- ACHTUNG: Lege die Datei unter app/public/assets/techflair-logo.png -->
+        <img class="brand__logo-img" src="assets/techflair-logo.png" alt="TechFlair Logo" />
         <span>TechFlair</span>
       </div>
       <nav class="nav__links">
-        <a href="#project">Projekt</a>
-        <a href="#deliverables">Deliverables</a>
+        <a href="#home">Start</a>
+        <a href="#project" data-gated class="hidden">Projekt</a>
+        <a href="#deliverables" data-gated class="hidden">Deliverables</a>
         <a href="#kontakt">Kontakt</a>
         <a href="#admin" data-role="admin" class="hidden">Admin</a>
       </nav>
@@ -59,30 +64,43 @@
   </header>
 
   <main>
-    <section class="hero" id="project">
+    <!-- START/LANDING (immer sichtbar) -->
+    <section class="container gate" id="home">
+      <span class="hero__badge">Willkommen bei TechFlair</span>
+      <h1>Projektportal – MicroK8s-Cluster & Webanwendung</h1>
+      <p>Hier findest du alle projektrelevanten Inhalte. Um die Details zu sehen (Architektur, Skripte, Downloads und Admin-Bereich), melde dich bitte an.</p>
+      <div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn--primary" id="ctaLogin">Jetzt anmelden</button>
+        <button class="btn" id="ctaRegister">Konto erstellen</button>
+      </div>
+    </section>
+
+    <!-- PROJEKT (nur nach Login sichtbar) -->
+    <section class="hero hidden" id="project" data-gated>
       <div class="container hero__grid">
         <div>
-          <span class="hero__badge">MicroK8s • Nginx • Ingress</span>
-          <h1>Projekt: MicroK8s-Cluster mit Webanwendung</h1>
-          <p class="section__lead">Diese Website bleibt Präsentation – Benutzer & Admins werden in einer Datenbank persistiert.</p>
+          <span class="hero__badge">Nach Anmeldung sichtbar</span>
+          <h2>Projekt: MicroK8s-Cluster mit Webanwendung</h2>
+          <p class="section__lead">Ziele, Architektur und Umsetzung: Container, Ingress, Monitoring, Automatisierung.</p>
           <div style="display:flex;gap:.6rem;flex-wrap:wrap">
             <a class="btn btn--primary" href="#deliverables">Zum Projekt-Ordner</a>
             <a class="btn" href="#kontakt">Kontakt</a>
           </div>
         </div>
         <div class="hero__card">
-          <strong>Auth (Server-gestützt)</strong>
+          <strong>Kurzüberblick</strong>
           <ul style="margin:.6rem 0 0 1.2rem">
-            <li>Registrierung/Login via REST API</li>
-            <li>Passwort-Hashing, JWT</li>
-            <li>Rollen: user/admin (per Admin-Key)</li>
-            <li>Persistenz: SQLite (Demo)</li>
+            <li>Deployment (2 Replikas), Service, Ingress</li>
+            <li>Automatisierte Bootstrap-Skripte</li>
+            <li>Basis-Monitoring & Health-Checks</li>
+            <li>Dokumentation & Präsentation</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="container" id="deliverables">
+    <!-- DELIVERABLES (nur nach Login sichtbar) -->
+    <section class="container hidden" id="deliverables" data-gated>
       <h2 class="section__title">Deliverables (Projekt-Ordner)</h2>
       <div class="grid-2">
         <div class="card">
@@ -102,14 +120,15 @@
 ├─ package.json
 ├─ public/
 │  ├─ index.html
-│  ├─ assets/
+│  ├─ assets/ (Logo, Bilder, CSS)
 │  └─ project/ (scripts + k8s)
-└─ data/ (SQLite – demo, nicht persistent auf Render)
+└─ data/ (SQLite – demo)
 </code></pre>
         </div>
       </div>
     </section>
 
+    <!-- KONTAKT (immer sichtbar) -->
     <section class="container" id="kontakt">
       <h2 class="section__title">Kontakt</h2>
       <form id="contactForm" class="grid" novalidate>
@@ -123,8 +142,8 @@
       </form>
     </section>
 
-    <!-- ADMIN -->
-    <section class="container hidden" id="admin" aria-labelledby="admin-title">
+    <!-- ADMIN (nur für admin) -->
+    <section class="container hidden" id="admin" aria-labelledby="admin-title" data-role="admin">
       <h2 id="admin-title" class="section__title">Admin-Dashboard</h2>
       <div class="card" style="margin-bottom:1rem">
         <div style="display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap">
@@ -201,6 +220,10 @@
       const loginForm=$('#loginForm'), registerForm=$('#registerForm');
       const loginStatus=$('#loginStatus'), registerStatus=$('#registerStatus');
 
+      // Landing-CTAs
+      $('#ctaLogin')?.addEventListener('click',()=>{open();showLogin()});
+      $('#ctaRegister')?.addEventListener('click',()=>{open();showRegister()});
+
       function token(){ return localStorage.getItem(TOKEN_KEY) }
       async function me(){
         if(!token()) return null;
@@ -210,14 +233,21 @@
           const data = await r.json(); return data.user;
         }catch{ return null; }
       }
+      function setGate(isLogged, isAdmin){
+        // alles mit [data-gated] nur für eingeloggte User
+        $all('[data-gated]').forEach(el=>el.classList.toggle('hidden', !isLogged));
+        // Admin-only
+        $all('[data-role="admin"]').forEach(el=>el.classList.toggle('hidden', !isAdmin));
+      }
       function applyRole(user){
         const isLogged=!!user; const isAdmin=isLogged && user.role==='admin';
         loginBtn.classList.toggle('hidden', isLogged);
         logoutBtn.classList.toggle('hidden', !isLogged);
-        $all('#admin,[data-role="admin"]').forEach(el=>el.classList.toggle('hidden', !isAdmin));
+        setGate(isLogged, isAdmin);
         if(isAdmin){ loadUsers(); }
       }
       async function refresh(){ applyRole(await me()) }
+
       function open(){modal.classList.remove('hidden')} function close(){modal.classList.add('hidden')}
       function showLogin(){tabLogin.setAttribute('aria-selected','true');tabRegister.setAttribute('aria-selected','false');loginForm.classList.remove('hidden');registerForm.classList.add('hidden')}
       function showRegister(){tabLogin.setAttribute('aria-selected','false');tabRegister.setAttribute('aria-selected','true');loginForm.classList.add('hidden');registerForm.classList.remove('hidden')}
@@ -257,7 +287,7 @@
         }catch(err){ registerStatus.textContent = err.message; }
       });
 
-      // Kontaktformular (Demo)
+      // Kontakt (Demo)
       const form=$('#contactForm'), statusEl=$('#formStatus');
       form?.addEventListener('submit', e=>{
         e.preventDefault(); const d=new FormData(form);
@@ -265,12 +295,13 @@
         form.reset(); statusEl.textContent='Danke! Wir melden uns zeitnah.';
       });
 
-      // ---- Admin: Users laden, löschen, CSV ----
+      // ---- Admin ----
       $('#refreshUsers')?.addEventListener('click', loadUsers);
       $('#exportCsv')?.addEventListener('click', exportCsv);
 
       async function loadUsers(){
-        const tbody = $('#usersTbody'); tbody.innerHTML = '<tr><td colspan="6">Lade…</td></tr>';
+        const tbody = $('#usersTbody'); if(!tbody) return;
+        tbody.innerHTML = '<tr><td colspan="6">Lade…</td></tr>';
         const tok = token(); if(!tok){ tbody.innerHTML='<tr><td colspan="6">Nicht angemeldet.</td></tr>'; return; }
         try{
           const r = await fetch('/api/users',{headers:{Authorization:'Bearer '+tok}});
@@ -284,12 +315,9 @@
               <td>${escapeHtml(u.email)}</td>
               <td>${u.role}</td>
               <td>${new Date(u.created_at).toLocaleString()}</td>
-              <td>
-                <button class="btn" data-del="${u.id}">Löschen</button>
-              </td>
+              <td><button class="btn" data-del="${u.id}">Löschen</button></td>
             </tr>
           `).join('');
-          // Delete handler
           tbody.querySelectorAll('button[data-del]').forEach(btn=>{
             btn.addEventListener('click', async ()=>{
               const id = btn.getAttribute('data-del');
@@ -305,8 +333,9 @@
       }
 
       function exportCsv(){
+        const body = document.querySelector('#usersTbody'); if(!body) return;
         const rows = [['ID','Name','Email','Rolle','Erstellt']];
-        document.querySelectorAll('#usersTbody tr').forEach(tr=>{
+        body.querySelectorAll('tr').forEach(tr=>{
           const tds=[...tr.querySelectorAll('td')].map(td=>td.innerText);
           if (tds.length>=5 && tds[0] !== 'Lade…' && !tds[0].includes('Keine Benutzer')) rows.push(tds.slice(0,5));
         });
@@ -319,7 +348,6 @@
       }
 
       function escapeHtml(s){return (s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-
       $('#year').textContent=new Date().getFullYear();
       refresh();
     }

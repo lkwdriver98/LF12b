@@ -1,0 +1,111 @@
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projekt – CI/CD Pipeline</title>
+<link rel="icon" href="/assets/techflair-favicon.png">
+<style>
+:root{--bg:#0a0f1c;--fg:#e6edf3;--muted:#9fb1c3;--surface:#0f172a;--border:#1f2a3a;--radius:1rem}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui;background:var(--bg);color:var(--fg)}
+.container{width:min(1000px,92%);margin:0 auto}
+header{position:sticky;top:0;background:rgba(10,15,28,.8);border-bottom:1px solid var(--border)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}
+.brand{display:flex;gap:.6rem;align-items:center;font-weight:800}
+.brand img{height:40px;border-radius:8px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin:1rem 0}
+pre,code{background:#0a0f1c;border:1px solid var(--border);border-radius:.6rem;padding:.5rem}
+a{color:#0ea5e9;text-decoration:none}
+</style></head><body>
+<header><div class="container nav">
+  <div class="brand"><img src="/assets/techflair-logo.png" alt=""><span>TechFlair</span></div>
+  <nav><a href="/projects/index.html">← Projekte</a></nav>
+  <button id="logout" class="card" style="padding:.5rem 1rem">Abmelden</button>
+</div></header>
+
+<main class="container" style="padding:1.5rem 0">
+  <h1>CI/CD Pipeline – Build → Container → MicroK8s</h1>
+
+  <div class="card">
+    <h3>Ziel</h3>
+    <ul>
+      <li>Automatisches Bauen & Testen bei jedem Push</li>
+      <li>Container-Image erstellen & registrieren</li>
+      <li>Deployment ins MicroK8s-Cluster aktualisieren</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>GitHub Actions – Beispielworkflow</h3>
+<pre><code name="yaml">name: ci-cd
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm ci
+      - run: npm test --if-present
+
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & push image
+        run: |
+          IMAGE=ghcr.io/${{ github.repository }}/techflair-app:latest
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kubeconfig bereitstellen
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > ~/.kube/config
+      - name: Image aktualisieren
+        run: |
+          kubectl set image deploy/techflair-web web=ghcr.io/${{ github.repository }}/techflair-app:latest
+          kubectl rollout status deploy/techflair-web</code></pre>
+    <p style="color:#9fb1c3">Hinweis: <code>KUBECONFIG_B64</code> als Secret im Repo hinterlegen. Image-Pfad anpassen.</p>
+  </div>
+
+  <div class="card">
+    <h3>Kubernetes-Deployment (Ausschnitt)</h3>
+<pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: techflair-web
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: techflair-web } }
+  template:
+    metadata: { labels: { app: techflair-web } }
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/OWNER/REPO/techflair-app:latest
+          ports: [ {containerPort: 10000} ]
+</code></pre>
+  </div>
+</main>
+
+<script src="/js/auth.js"></script>
+<script>
+TF_AUTH.requireLogin().then(u=>{
+  if(!u) return;
+  document.getElementById('logout').onclick=()=>{TF_AUTH.logout();location.href='/index.html';};
+});
+</script>
+</body></html>

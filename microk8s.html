@@ -1,0 +1,55 @@
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projekt – MicroK8s</title>
+<link rel="icon" href="/assets/techflair-favicon.png">
+<style>
+:root{--bg:#0a0f1c;--fg:#e6edf3;--muted:#9fb1c3;--surface:#0f172a;--border:#1f2a3a;--radius:1rem}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui;background:var(--bg);color:var(--fg)}
+.container{width:min(1000px,92%);margin:0 auto}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin:1rem 0}
+header{position:sticky;top:0;background:rgba(10,15,28,.8);border-bottom:1px solid var(--border)}.nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}
+pre,code{background:#0a0f1c;border:1px solid var(--border);border-radius:.6rem;padding:.5rem}
+</style></head><body>
+<header><div class="container nav">
+  <div style="display:flex;gap:.6rem;align-items:center;font-weight:800"><img src="/assets/techflair-logo.png" style="height:40px;border-radius:8px" alt=""><span>TechFlair</span></div>
+  <nav><a href="/projects/index.html" style="color:#0ea5e9;text-decoration:none">← Zurück</a></nav>
+  <button id="logout" class="card" style="padding:.5rem 1rem">Abmelden</button>
+</div></header>
+
+<main class="container" style="padding:1.5rem 0">
+  <h1>MicroK8s-Cluster mit Nginx</h1>
+  <div class="card"><h3>Ziele</h3><ul><li>Cluster aufsetzen, Worker joinen</li><li>Deployment (≥2), Service, Ingress</li><li>Bootstrap-Skripte & Health-Checks</li></ul></div>
+  <div class="card"><h3>Downloads</h3>
+    <ul>
+      <li><a href="/project/scripts/bootstrap.sh" download>scripts/bootstrap.sh</a></li>
+      <li><a href="/project/k8s/deploy-nginx.yaml" download>k8s/deploy-nginx.yaml</a></li>
+      <li><a href="/project/k8s/service.yaml" download>k8s/service.yaml</a></li>
+      <li><a href="/project/k8s/ingress.yaml" download>k8s/ingress.yaml</a></li>
+    </ul>
+  </div>
+  <div class="card"><h3>Ingress-Beispiel</h3>
+<pre><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+spec:
+  rules:
+  - host: nginx.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80</code></pre></div>
+</main>
+
+<script src="/js/auth.js"></script>
+<script>
+TF_AUTH.requireLogin().then(u=>{
+  if(!u) return;
+  document.getElementById('logout').onclick=()=>{TF_AUTH.logout();location.href='/index.html';};
+});
+</script>
+</body></html>

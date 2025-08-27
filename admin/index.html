@@ -1,0 +1,74 @@
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin – TechFlair</title>
+<link rel="icon" href="/assets/techflair-favicon.png">
+<style>
+:root{--bg:#0a0f1c;--fg:#e6edf3;--muted:#9fb1c3;--surface:#0f172a;--border:#1f2a3a;--radius:1rem}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui;background:var(--bg);color:var(--fg)}
+.container{width:min(1100px,92%);margin:0 auto}header{position:sticky;top:0;background:rgba(10,15,28,.8);border-bottom:1px solid var(--border)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin:1rem 0}
+table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:.8rem;overflow:hidden}
+th,td{padding:.7rem .9rem;border-bottom:1px solid var(--border);text-align:left}
+thead th{background:rgba(14,165,233,.08)}
+</style></head><body>
+<header><div class="container nav">
+  <div style="display:flex;gap:.6rem;align-items:center;font-weight:800"><img src="/assets/techflair-logo.png" style="height:40px;border-radius:8px" alt=""><span>TechFlair</span></div>
+  <nav><a href="/projects/index.html">Projekte</a></nav>
+  <button id="logout" class="card" style="padding:.5rem 1rem">Abmelden</button>
+</div></header>
+
+<main class="container" style="padding:1.5rem 0">
+  <h1>Admin-Dashboard</h1>
+  <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap">
+    <div>Benutzerverwaltung</div>
+    <div><button id="reload" class="card" style="padding:.5rem 1rem">Aktualisieren</button>
+         <button id="export" class="card" style="padding:.5rem 1rem">CSV exportieren</button></div>
+  </div>
+  <div class="card"><div style="overflow:auto">
+    <table><thead><tr><th>ID</th><th>Name</th><th>E-Mail</th><th>Rolle</th><th>Erstellt</th><th>Aktion</th></tr></thead>
+      <tbody id="tbody"><tr><td colspan="6">Lade…</td></tr></tbody></table></div></div>
+</main>
+
+<script src="/js/auth.js"></script>
+<script>
+TF_AUTH.requireAdmin().then(u=>{
+  if(!u) return;
+  const tbody=document.getElementById('tbody');
+  document.getElementById('logout').onclick=()=>{TF_AUTH.logout();location.href='/index.html';};
+  document.getElementById('reload').onclick=load;
+  document.getElementById('export').onclick=csv;
+  load();
+
+  async function load(){
+    tbody.innerHTML='<tr><td colspan="6">Lade…</td></tr>';
+    const t=localStorage.getItem(TF_AUTH.KEY);
+    const r=await fetch('/api/users',{headers:{Authorization:'Bearer '+t}});
+    if(!r.ok){tbody.innerHTML='<tr><td colspan="6">Fehler/Berechtigung.</td></tr>';return;}
+    const data=await r.json();
+    if(!data.users?.length){tbody.innerHTML='<tr><td colspan="6">Keine Benutzer.</td></tr>';return;}
+    tbody.innerHTML=data.users.map(u=>`
+      <tr>
+        <td>${u.id}</td><td>${esc(u.name)}</td><td>${esc(u.email)}</td>
+        <td>${u.role}</td><td>${new Date(u.created_at).toLocaleString()}</td>
+        <td><button data-del="${u.id}">Löschen</button></td>
+      </tr>`).join('');
+    tbody.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+      if(!confirm('Benutzer wirklich löschen?'))return;
+      const rr=await fetch('/api/users/'+b.dataset.del,{method:'DELETE',headers:{Authorization:'Bearer '+t}});
+      if(!rr.ok){alert('Löschen fehlgeschlagen');return;} load();
+    });
+  }
+  function csv(){
+    const rows=[['ID','Name','Email','Rolle','Erstellt']];
+    tbody.querySelectorAll('tr').forEach(tr=>{
+      const t=[...tr.querySelectorAll('td')].map(td=>td.innerText);
+      if(t.length>=5 && !t[0].includes('Lade') && !t[0].includes('Keine')) rows.push(t.slice(0,5));
+    });
+    const blob=new Blob([rows.map(r=>r.map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(';')).join('\n')],{type:'text/csv'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='users.csv';a.click();
+  }
+  function esc(s){return (s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+});
+</script>
+</body></html>

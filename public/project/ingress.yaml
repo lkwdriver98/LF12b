@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  namespace: web
+  annotations:
+    # Optional tweaks for NGINX Ingress Controller
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  # MicroK8s ingress addon defaults to class 'public' on recent versions.
+  ingressClassName: public
+  rules:
+  - host: nginx.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-svc
+            port:
+              number: 80
+  # TLS (optional). Provide a secret named 'nginx-tls' with your certificate.
+  # tls:
+  # - hosts:
+  #   - nginx.local
+  #   secretName: nginx-tls

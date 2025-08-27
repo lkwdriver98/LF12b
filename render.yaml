@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: techflair-app
+    env: node
+    rootDir: .
+    buildCommand: "npm install"
+    startCommand: "npm run start"
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: ADMIN_KEY
+        value: TECHFLAIR-ADMIN
+      - key: JWT_SECRET
+        value: super-geheimer-string-12345
+      - key: DB_PATH
+        value: ./data/techflair.db

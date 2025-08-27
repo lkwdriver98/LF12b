@@ -1,0 +1,52 @@
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TechFlair – Projekte</title>
+<link rel="icon" href="/assets/techflair-favicon.png">
+<style>
+:root{--bg:#0a0f1c;--fg:#e6edf3;--muted:#9fb1c3;--surface:#0f172a;--border:#1f2a3a;--radius:1rem}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui;background:var(--bg);color:var(--fg)}
+.container{width:min(1100px,92%);margin:0 auto}header{position:sticky;top:0;background:rgba(10,15,28,.8);border-bottom:1px solid var(--border)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}.brand{display:flex;gap:.6rem;font-weight:800}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+a{color:#0ea5e9;text-decoration:none}
+</style></head><body>
+<header><div class="container nav">
+  <div class="brand"><img src="/assets/techflair-logo.png" alt="" style="height:40px;border-radius:8px"><span>TechFlair</span></div>
+  <nav><a href="/index.html">Start</a></nav>
+  <button id="logout" class="card" style="padding:.5rem 1rem">Abmelden</button>
+</div></header>
+
+<main class="container" style="padding:2rem 0">
+  <h1>Projekte</h1>
+  <p style="color:var(--muted)">Nur für angemeldete Benutzer.</p>
+  <div class="grid">
+    <a class="card" href="/projects/microk8s.html"><h3>MicroK8s-Cluster mit Nginx</h3><p>Replica ≥ 2, Service, Ingress, Bootstrap, Monitoring.</p></a>
+    <div class="grid">
+  <a class="card" href="/projects/microk8s.html">
+    <h3>MicroK8s-Cluster mit Nginx</h3>
+    <p>Replica ≥ 2, Service, Ingress, Bootstrap, Monitoring.</p>
+  </a>
+
+  <a class="card" href="/projects/ci-cd.html">
+    <h3>CI/CD Pipeline</h3>
+    <p>GitHub Actions → Container → Rolling Update ins Cluster.</p>
+  </a>
+
+  <a class="card" href="/projects/monitoring.html">
+    <h3>Monitoring & Health</h3>
+    <p>MicroK8s Checks, kubectl Shortcuts, App-Health-Route.</p>
+  </a>
+</div>
+
+  </div>
+</main>
+
+<script src="/js/auth.js"></script>
+<script>
+TF_AUTH.requireLogin().then(u=>{
+  if(!u) return;
+  document.getElementById('logout').onclick=()=>{TF_AUTH.logout();location.href='/index.html';};
+});
+</script>
+</body></html>

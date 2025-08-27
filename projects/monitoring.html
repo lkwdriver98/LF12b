@@ -1,0 +1,73 @@
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projekt – Monitoring & Health</title>
+<link rel="icon" href="/assets/techflair-favicon.png">
+<style>
+:root{--bg:#0a0f1c;--fg:#e6edf3;--muted:#9fb1c3;--surface:#0f172a;--border:#1f2a3a;--radius:1rem}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui;background:var(--bg);color:var(--fg)}
+.container{width:min(1000px,92%);margin:0 auto}
+header{position:sticky;top:0;background:rgba(10,15,28,.8);border-bottom:1px solid var(--border)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}
+.brand{display:flex;gap:.6rem;align-items:center;font-weight:800}
+.brand img{height:40px;border-radius:8px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin:1rem 0}
+pre,code{background:#0a0f1c;border:1px solid var(--border);border-radius:.6rem;padding:.5rem}
+a{color:#0ea5e9;text-decoration:none}
+</style></head><body>
+<header><div class="container nav">
+  <div class="brand"><img src="/assets/techflair-logo.png" alt=""><span>TechFlair</span></div>
+  <nav><a href="/projects/index.html">← Projekte</a></nav>
+  <button id="logout" class="card" style="padding:.5rem 1rem">Abmelden</button>
+</div></header>
+
+<main class="container" style="padding:1.5rem 0">
+  <h1>Monitoring & Health-Checks</h1>
+
+  <div class="card">
+    <h3>Scope</h3>
+    <ul>
+      <li>MicroK8s Status & Add-ons prüfen</li>
+      <li>K8s Ressourcen-Übersicht (Nodes/Pods/Services)</li>
+      <li>Health-Endpunkte der App</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>MicroK8s – minimale Checks</h3>
+<pre><code># Node-Status
+microk8s status --wait-ready
+microk8s kubectl get nodes -o wide
+
+# DNS & Ingress aktiv?
+microk8s enable dns ingress
+microk8s kubectl get pods -A | grep -E "coredns|ingress"
+
+# allgemeine Übersicht
+microk8s inspect</code></pre>
+  </div>
+
+  <div class="card">
+    <h3>Kubectl Kurzbefehle</h3>
+<pre><code>kubectl get ns
+kubectl get deploy,svc,ing -n default
+kubectl get pods -o wide
+kubectl describe deploy techflair-web
+kubectl logs deploy/techflair-web --tail=100</code></pre>
+  </div>
+
+  <div class="card">
+    <h3>App-Health (Server.js)</h3>
+<pre><code>// Beispiel-Route
+app.get('/healthz', (req,res)=>res.json({ ok:true, ts:Date.now() }));</code></pre>
+    <p style="color:#9fb1c3">Ingress-Pfad z. B. <code>/healthz</code> publizieren und in externem Monitoring verwenden.</p>
+  </div>
+</main>
+
+<script src="/js/auth.js"></script>
+<script>
+TF_AUTH.requireLogin().then(u=>{
+  if(!u) return;
+  document.getElementById('logout').onclick=()=>{TF_AUTH.logout();location.href='/index.html';};
+});
+</script>
+</body></html>

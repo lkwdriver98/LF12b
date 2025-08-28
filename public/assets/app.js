@@ -1,8 +1,10 @@
 (function(){
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}else{init()}
-  function $(s){return document.querySelector(s)} function $all(s){return document.querySelectorAll(s)}
 
-  const STORAGE='tf_user';        // gespeichert: {name,email,role,id}
+  function $(s){return document.querySelector(s)}
+  function $all(s){return document.querySelectorAll(s)}
+
+  const STORAGE='tf_user';        // gespeichert: {id,name,email,role}
   const TOKEN_KEY='tf_token';     // JWT
   const API = "";                 // gleicher Origin
 
@@ -11,11 +13,41 @@
   function clearUser(){localStorage.removeItem(STORAGE)}
   function token(){ return localStorage.getItem(TOKEN_KEY) || ''; }
 
-  function applyAuth(){
-    const u=getUser(), isLogged=!!u, isAdmin=isLogged&&u.role==='admin';
-    $('#loginBtn')?.classList.toggle('hidden',isLogged);
-    $('#logoutBtn')?.classList.toggle('hidden',!isLogged);
-    $all('#admin,[data-role="admin"]').forEach(el=>el.classList.toggle('hidden',!isAdmin));
+  function ensureAuthModal(){
+    if($('#authModal')) return;
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="authModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+        <div class="modal__panel">
+          <div class="tabs" role="tablist">
+            <button id="tabLogin" class="tab" role="tab" aria-selected="true">Anmelden</button>
+            <button id="tabRegister" class="tab" role="tab" aria-selected="false">Registrieren</button>
+          </div>
+          <form id="loginForm" class="grid" autocomplete="on">
+            <div class="row"><label for="loginEmail">E-Mail</label><input id="loginEmail" type="email" required></div>
+            <div class="row"><label for="loginPassword">Passwort</label><input id="loginPassword" type="password" required></div>
+            <div style="display:flex;gap:.6rem;justify-content:flex-end">
+              <button class="btn" type="button" id="switchToRegister">Neu hier?</button>
+              <button class="btn btn--primary" type="submit">Login</button>
+            </div>
+            <p id="loginStatus" aria-live="polite"></p>
+          </form>
+          <form id="registerForm" class="grid hidden" autocomplete="on">
+            <div class="row"><label for="regName">Name</label><input id="regName" type="text" required></div>
+            <div class="row"><label for="regEmail">E-Mail</label><input id="regEmail" type="email" required></div>
+            <div class="row"><label for="regPassword">Passwort</label><input id="regPassword" type="password" required></div>
+            <small style="color:var(--muted)">Öffentliche Registrierung erstellt immer <strong>role=user</strong>.</small>
+            <div style="display:flex;gap:.6rem;justify-content:flex-end">
+              <button class="btn" type="button" id="switchToLogin">Schon ein Konto?</button>
+              <button class="btn btn--primary" type="submit">Registrieren</button>
+            </div>
+            <p id="registerStatus" aria-live="polite"></p>
+          </form>
+          <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
+            <button id="authClose" class="btn">Schließen</button>
+          </div>
+        </div>
+      </div>
+    `);
   }
 
   async function fetchJSON(url, opts={}){
@@ -31,7 +63,16 @@
     return data;
   }
 
+  function applyAuth(){
+    const u=getUser(), isLogged=!!u, isAdmin=isLogged&&u.role==='admin';
+    $('#loginBtn')?.classList.toggle('hidden',isLogged);
+    $('#logoutBtn')?.classList.toggle('hidden',!isLogged);
+    $all('#admin,[data-role="admin"]').forEach(el=>el.classList.toggle('hidden',!isAdmin));
+  }
+
   function init(){
+    ensureAuthModal(); // ← stellt sicher, dass der Modal existiert
+
     const loginBtn=$('#loginBtn'), logoutBtn=$('#logoutBtn');
     const modal=$('#authModal'), closeBtn=$('#authClose');
     const tabLogin=$('#tabLogin'), tabRegister=$('#tabRegister');
@@ -43,17 +84,17 @@
     function showLogin(){tabLogin?.setAttribute('aria-selected','true');tabRegister?.setAttribute('aria-selected','false');loginForm?.classList.remove('hidden');registerForm?.classList.add('hidden')}
     function showRegister(){tabLogin?.setAttribute('aria-selected','false');tabRegister?.setAttribute('aria-selected','true');loginForm?.classList.add('hidden');registerForm?.classList.remove('hidden')}
 
-    loginBtn&& (loginBtn.onclick=()=>{open();showLogin()})
-    logoutBtn&& (logoutBtn.onclick=()=>{
+    loginBtn && (loginBtn.onclick=()=>{ open(); showLogin(); });
+    logoutBtn && (logoutBtn.onclick=()=>{
       localStorage.removeItem(TOKEN_KEY);
       clearUser(); applyAuth();
-    })
-    closeBtn&& (closeBtn.onclick=close)
-    $('#switchToRegister')?.addEventListener('click',()=>showRegister())
-    $('#switchToLogin')?.addEventListener('click',()=>showLogin())
-    modal?.addEventListener('click',e=>{if(e.target===modal)close()})
-    tabLogin?.addEventListener('click',showLogin)
-    tabRegister?.addEventListener('click',showRegister)
+    });
+    closeBtn && (closeBtn.onclick=close);
+    $('#switchToRegister')?.addEventListener('click',()=>showRegister());
+    $('#switchToLogin')?.addEventListener('click',()=>showLogin());
+    modal?.addEventListener('click',e=>{ if(e.target===modal) close(); });
+    tabLogin?.addEventListener('click',showLogin);
+    tabRegister?.addEventListener('click',showRegister);
 
     // Login -> Backend
     loginForm?.addEventListener('submit', async (e)=>{
@@ -96,7 +137,7 @@
       e.preventDefault(); const d=new FormData(form);
       if(!d.get('name')||!d.get('email')||!d.get('message')){statusEl.textContent='Bitte alle Felder ausfüllen.';return}
       form.reset(); statusEl.textContent='Danke! Wir melden uns zeitnah.';
-    })
+    });
 
     $('#year')?.textContent=new Date().getFullYear();
     applyAuth();

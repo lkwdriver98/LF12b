@@ -8,6 +8,8 @@ import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import fs from "fs"; // <— FEHLTE
+
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -44,10 +46,8 @@ app.use((req, res, next) => {
 /* ========= DB ========= */
 let db;
 async function initDb() {
-  // Ordner für DB sicherstellen
   const dir = path.dirname(DB_PATH);
-  fs.mkdirSync(dir, { recursive: true });
-
+  fs.mkdirSync(dir, { recursive: true });      // Ordner anlegen, falls nicht da
   db = await open({ filename: DB_PATH, driver: sqlite3.Database });
   await db.exec(`
     PRAGMA journal_mode = WAL;
@@ -64,6 +64,7 @@ async function initDb() {
   `);
   console.log("DB ready at:", DB_PATH);
 }
+
 /* ========= Helpers ========= */
 function signToken(user) {
   return jwt.sign(
@@ -190,3 +191,4 @@ initDb()
     console.error("DB init failed", err);
     process.exit(1);
   });
+

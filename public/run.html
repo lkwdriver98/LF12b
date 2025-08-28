@@ -1,0 +1,48 @@
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TechFlair – Install & Run</title>
+<link rel="icon" href="./assets/Techflairlogo.png" type="image/png" />
+<link rel="stylesheet" href="./assets/style.css"></head><body>
+<header>
+  <div class="container nav">
+    <div class="brand"><img class="brand__logo-img" src="./assets/Techflairlogo.png" alt="TechFlair Logo" /></div>
+    <nav class="nav__links">
+      <a href="index.html">Start</a><a href="projekt.html">Projekt</a><a href="architektur.html">Architektur</a>
+      <a href="deliverables.html">Deliverables</a><a href="run.html">Run</a><a href="kontakt.html">Kontakt</a>
+      <a href="admin.html" data-role="admin" class="hidden">Admin</a>
+    </nav>
+    <div style="display:flex;gap:.6rem;align-items:center"><button id="loginBtn" class="btn">Anmelden</button><button id="logoutBtn" class="btn hidden">Abmelden</button></div>
+  </div>
+</header>
+
+<main class="container" id="run" aria-labelledby="run-title">
+  <h2 id="run-title" class="section__title">Install & Run</h2>
+  <p class="section__lead">So startest du das Projekt auf frischen Serverknoten (Beispiel).</p>
+  <div class="grid-3">
+    <article class="card">
+      <h3>1) Bootstrap</h3>
+      <p>OS vorbereiten, MicroK8s installieren, Add-ons aktivieren.</p>
+      <pre style="overflow:auto;background:#0c1424;border:1px solid var(--border);padding:.9rem;border-radius:.6rem"><code>ssh user@cluster-master
+sudo bash project/scripts/bootstrap.sh</code></pre>
+    </article>
+    <article class="card">
+      <h3>2) Cluster bilden</h3>
+      <p>Worker beitreten lassen, Status prüfen.</p>
+      <pre style="overflow:auto;background:#0c1424;border:1px solid var(--border);padding:.9rem;border-radius:.6rem"><code>microk8s add-node   # master
+microk8s join ...   # auf Worker
+kubectl get nodes</code></pre>
+    </article>
+    <article class="card">
+      <h3>3) Deploy</h3>
+      <p>Nginx & Ingress ausrollen, Erreichbarkeit testen.</p>
+      <pre style="overflow:auto;background:#0c1424;border:1px solid var(--border);padding:.9rem;border-radius:.6rem"><code>kubectl apply -f project/k8s/deploy-nginx.yaml
+kubectl apply -f project/k8s/service.yaml
+kubectl apply -f project/k8s/ingress.yaml
+kubectl get pods -A</code></pre>
+    </article>
+  </div>
+</main>
+
+<footer><div class="container">© <span id="year"></span> – TechFlair.</div></footer>
+<script src="./assets/app.js"></script>
+</body></html>

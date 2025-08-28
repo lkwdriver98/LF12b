@@ -1,0 +1,53 @@
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TechFlair – Deliverables</title>
+<link rel="icon" href="./assets/Techflairlogo.png" type="image/png" />
+<link rel="stylesheet" href="./assets/style.css"></head><body>
+<header>
+  <div class="container nav">
+    <div class="brand"><img class="brand__logo-img" src="./assets/Techflairlogo.png" alt="TechFlair Logo" /></div>
+    <nav class="nav__links">
+      <a href="index.html">Start</a><a href="projekt.html">Projekt</a><a href="architektur.html">Architektur</a>
+      <a href="deliverables.html">Deliverables</a><a href="run.html">Run</a><a href="kontakt.html">Kontakt</a>
+      <a href="admin.html" data-role="admin" class="hidden">Admin</a>
+    </nav>
+    <div style="display:flex;gap:.6rem;align-items:center"><button id="loginBtn" class="btn">Anmelden</button><button id="logoutBtn" class="btn hidden">Abmelden</button></div>
+  </div>
+</header>
+
+<main class="container">
+  <h2 class="section__title">Deliverables (Projekt-Ordner)</h2>
+  <p class="section__lead">Der Projekt-Code liegt strukturiert unter <code>/project</code>.</p>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Struktur</h3>
+      <pre><code>/project
+├── scripts
+│   └── bootstrap.sh
+├── k8s
+│   ├── deploy-nginx.yaml
+│   ├── service.yaml
+│   └── ingress.yaml
+└── docs
+    ├── netzplan.pdf
+    └── praesentation.pptx
+</code></pre>
+    </div>
+    <div class="card">
+      <h3>Downloads</h3>
+      <ul style="margin:.6rem 0 0 1.2rem">
+        <li><a href="project/scripts/bootstrap.sh" download>scripts/bootstrap.sh</a></li>
+        <li><a href="project/k8s/deploy-nginx.yaml" download>k8s/deploy-nginx.yaml</a></li>
+        <li><a href="project/k8s/service.yaml" download>k8s/service.yaml</a></li>
+        <li><a href="project/k8s/ingress.yaml" download>k8s/ingress.yaml</a></li>
+        <li><a href="project/docs/netzplan.pdf" download>docs/netzplan.pdf</a></li>
+        <li><a href="project/docs/praesentation.pptx" download>docs/praesentation.pptx</a></li>
+      </ul>
+      <p style="margin-top:.8rem;color:var(--muted)">Hinweis: Lege deine Dateien lokal in diese Pfade, dann funktionieren die Links direkt.</p>
+    </div>
+  </div>
+</main>
+
+<footer><div class="container">© <span id="year"></span> – TechFlair.</div></footer>
+<script src="./assets/app.js"></script>
+</body></html>

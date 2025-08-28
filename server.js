@@ -3,13 +3,12 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import fs from "fs"; // <— FEHLTE
-
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -19,17 +18,21 @@ const app = express();
 
 /* ========= Config ========= */
 const PORT = process.env.PORT || 3000;
-const ADMIN_KEY = process.env.ADMIN_KEY || "TECHFLAIR-ADMIN";
 const JWT_SECRET = process.env.JWT_SECRET || "change-this-secret";
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, "data", "techflair.db");
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
+
+/* Default Admin (nur wenn keiner existiert) */
+const DEFAULT_ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL || "admin@example.com";
+const DEFAULT_ADMIN_NAME = process.env.DEFAULT_ADMIN_NAME || "Default Admin";
+const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || "admin1234";
 
 /* ========= Middlewares ========= */
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static website (Landing + Downloads)
+// Static website (Multi-Page from /public)
 app.use(express.static(path.join(__dirname, "public")));
 
 // Simple in-memory rate limit (IP-based)
@@ -46,8 +49,10 @@ app.use((req, res, next) => {
 /* ========= DB ========= */
 let db;
 async function initDb() {
+  // Ensure DB directory exists
   const dir = path.dirname(DB_PATH);
-  fs.mkdirSync(dir, { recursive: true });      // Ordner anlegen, falls nicht da
+  fs.mkdirSync(dir, { recursive: true });
+
   db = await open({ filename: DB_PATH, driver: sqlite3.Database });
   await db.exec(`
     PRAGMA journal_mode = WAL;
@@ -62,6 +67,21 @@ async function initDb() {
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
   `);
+
+  // --- Fallback-Admin nur wenn keiner existiert ---
+  const existingAdmin = await db.get("SELECT id FROM users WHERE role='admin' LIMIT 1");
+  if (!existingAdmin) {
+    const password_hash = await bcrypt.hash(DEFAULT_ADMIN_PASSWORD, 10);
+    await db.run(
+      "INSERT INTO users (name, email, password_hash, role) VALUES (?,?,?,?)",
+      [DEFAULT_ADMIN_NAME.trim(), DEFAULT_ADMIN_EMAIL.toLowerCase().trim(), password_hash, "admin"]
+    );
+    console.log("⚠️ Default Admin erstellt:",
+      `${DEFAULT_ADMIN_EMAIL} / ${DEFAULT_ADMIN_PASSWORD} (bitte ändern)`);
+  } else {
+    console.log("Admin vorhanden – kein Default-Admin angelegt.");
+  }
+
   console.log("DB ready at:", DB_PATH);
 }
 
@@ -100,21 +120,22 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true, db: !!db, time: new Date().toISOString() });
 });
 
-// Register
+// Register (public) -> immer role=user
 app.post("/api/register", async (req, res) => {
   try {
-    const { name, email, password, adminKey } = req.body || {};
+    const { name, email, password } = req.body || {};
     if (!name || !email || !password) return res.status(400).json({ error: "Missing fields" });
+    if (password.length < 4) return res.status(400).json({ error: "Weak password" });
 
-    const role = adminKey === ADMIN_KEY ? "admin" : "user";
     const password_hash = await bcrypt.hash(password, 10);
+    const role = "user";
 
     const result = await db.run(
       "INSERT INTO users (name, email, password_hash, role) VALUES (?,?,?,?)",
       [name.trim(), email.toLowerCase().trim(), password_hash, role]
     );
 
-    const user = { id: result.lastID, name, email: email.toLowerCase().trim(), role };
+    const user = { id: result.lastID, name: name.trim(), email: email.toLowerCase().trim(), role };
     const token = signToken(user);
     res.json({ token, user });
   } catch (e) {
@@ -159,36 +180,56 @@ app.get("/api/me", authRequired, async (req, res) => {
 // Admin: list users
 app.get("/api/users", authRequired, requireRole("admin"), async (req, res) => {
   const users = await db.all(
-    "SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 200"
+    "SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 500"
   );
   res.json({ users });
+});
+
+// Admin: create user (role=user|admin)
+app.post("/api/users", authRequired, requireRole("admin"), async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body || {};
+    if (!name || !email || !password) return res.status(400).json({ error: "Missing fields" });
+    const r = (role || "user").toLowerCase();
+    if (!["user", "admin"].includes(r)) return res.status(400).json({ error: "Invalid role" });
+    if (password.length < 8) return res.status(400).json({ error: "Password too short (min 8)" });
+
+    const password_hash = await bcrypt.hash(password, 10);
+    const result = await db.run(
+      "INSERT INTO users (name, email, password_hash, role) VALUES (?,?,?,?)",
+      [name.trim(), email.toLowerCase().trim(), password_hash, r]
+    );
+    const user = { id: result.lastID, name: name.trim(), email: email.toLowerCase().trim(), role: r };
+    res.status(201).json({ user });
+  } catch (e) {
+    if (String(e?.message || "").includes("UNIQUE")) {
+      return res.status(409).json({ error: "Email already exists" });
+    }
+    console.error(e);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
 // Admin: delete user
 app.delete("/api/users/:id", authRequired, requireRole("admin"), async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) return res.status(400).json({ error: "Bad id" });
-  // prevent self-remove admin footgun (optional)
   if (id === req.user.sub) return res.status(400).json({ error: "Cannot remove self" });
 
   const result = await db.run("DELETE FROM users WHERE id = ?", [id]);
   res.json({ deleted: result.changes || 0 });
 });
 
-// Fallback → Website
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+// NOTE: Kein SPA-Fallback -> Multi-Page funktioniert out of the box
 
 /* ========= Boot ========= */
 initDb()
   .then(() =>
     app.listen(PORT, () =>
-      console.log(`TechFlair auth running → http://localhost:${PORT}`)
+      console.log(`TechFlair server running → http://localhost:${PORT}`)
     )
   )
   .catch((err) => {
     console.error("DB init failed", err);
     process.exit(1);
   });
-

@@ -29,12 +29,33 @@
 
 <main class="container" style="padding-top:2rem">
   <h2 class="section__title">Admin – Benutzerverwaltung</h2>
-  <p class="section__lead">Nur für Admins. Du kannst Benutzer löschen und als CSV exportieren.</p>
+  <p class="section__lead">Nur für Admins. Nutzer anlegen, löschen, CSV exportieren.</p>
 
-  <div class="card" style="margin-bottom:1rem;display:flex;gap:.6rem;align-items:center">
-    <button id="reloadBtn" class="btn">Aktualisieren</button>
-    <button id="exportCsvBtn" class="btn btn--primary">CSV exportieren</button>
-    <span id="adminStatus" style="margin-left:.5rem;color:var(--muted)"></span>
+  <div class="grid-2" style="margin-bottom:1rem">
+    <div class="card">
+      <h3>Neuen Nutzer anlegen</h3>
+      <form id="createForm" class="grid">
+        <div class="row"><label for="newName">Name</label><input id="newName" required placeholder="Max Mustermann"></div>
+        <div class="row"><label for="newEmail">E-Mail</label><input id="newEmail" type="email" required placeholder="max@example.org"></div>
+        <div class="row"><label for="newPassword">Passwort</label><input id="newPassword" type="password" required placeholder="mind. 8 Zeichen"></div>
+        <div class="row">
+          <label for="newRole">Rolle</label>
+          <select id="newRole">
+            <option value="user">user</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:.6rem;align-items:center">
+          <button class="btn btn--primary" type="submit">Anlegen</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card" style="display:flex;gap:.6rem;align-items:center">
+      <button id="reloadBtn" class="btn">Aktualisieren</button>
+      <button id="exportCsvBtn" class="btn btn--primary">CSV exportieren</button>
+      <span id="adminStatus" style="margin-left:.5rem;color:var(--muted)"></span>
+    </div>
   </div>
 
   <div class="card">
@@ -49,9 +70,37 @@
 
 <footer><div class="container">© <span id="year"></span> – TechFlair.</div></footer>
 
-<!-- Auth-Modal wiederverwenden wie auf den anderen Seiten -->
+<!-- AUTH MODAL (gleich wie auf Startseite) -->
 <div id="authModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-  <!-- gleicher Inhalt wie in index.html (Login/Registrieren) -->
+  <div class="modal__panel">
+    <div class="tabs" role="tablist">
+      <button id="tabLogin" class="tab" role="tab" aria-selected="true">Anmelden</button>
+      <button id="tabRegister" class="tab" role="tab" aria-selected="false">Registrieren</button>
+    </div>
+    <form id="loginForm" class="grid" autocomplete="on">
+      <div class="row"><label for="loginEmail">E-Mail</label><input id="loginEmail" type="email" required></div>
+      <div class="row"><label for="loginPassword">Passwort</label><input id="loginPassword" type="password" required></div>
+      <div style="display:flex;gap:.6rem;justify-content:flex-end">
+        <button class="btn" type="button" id="switchToRegister">Neu hier?</button>
+        <button class="btn btn--primary" type="submit">Login</button>
+      </div>
+      <p id="loginStatus" aria-live="polite"></p>
+    </form>
+    <form id="registerForm" class="grid hidden" autocomplete="on">
+      <div class="row"><label for="regName">Name</label><input id="regName" type="text" required></div>
+      <div class="row"><label for="regEmail">E-Mail</label><input id="regEmail" type="email" required></div>
+      <div class="row"><label for="regPassword">Passwort</label><input id="regPassword" type="password" required></div>
+      <small style="color:var(--muted)">Öffentliche Registrierung erstellt immer <strong>role=user</strong>.</small>
+      <div style="display:flex;gap:.6rem;justify-content:flex-end">
+        <button class="btn" type="button" id="switchToLogin">Schon ein Konto?</button>
+        <button class="btn btn--primary" type="submit">Registrieren</button>
+      </div>
+      <p id="registerStatus" aria-live="polite"></p>
+    </form>
+    <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
+      <button id="authClose" class="btn">Schließen</button>
+    </div>
+  </div>
 </div>
 
 <script src="./assets/app.js"></script>

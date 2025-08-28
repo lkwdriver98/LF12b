@@ -1,369 +1,95 @@
 <!doctype html>
-<html lang="de" data-theme="light">
+<html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TechFlair – MicroK8s Projekt</title>
-  <meta name="description" content="TechFlair – Projekt: MicroK8s-Cluster mit Nginx. Ziele, Architektur, Deliverables und Doku – sauber getrennt vom Webauftritt." />
-  <link rel="icon" href="assets/techflair-favicon.png" type="image/png" />
-  <style>
-    :root{
-      --bg:#0a0f1c; --fg:#e6edf3; --muted:#9fb1c3;
-      --primary:#0ea5e9; --primary-2:#6366f1; --primary-contrast:#ffffff;
-      --surface:#0f172a; --border:#1f2a3a; --shadow:0 14px 32px rgba(0,0,0,.55);
-      --radius:1rem;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",Arial;background:var(--bg);color:var(--fg);line-height:1.65}
-    a{color:var(--primary);text-decoration:none} a:hover{text-decoration:underline}
-    .container{width:min(1200px,92%);margin:0 auto}
-    .hidden{display:none!important}
-
-    /* Header */
-    header{position:sticky;top:0;background:rgba(10,15,28,.8);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);box-shadow:var(--shadow);z-index:50}
-    .nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 0}
-    .brand{display:flex;align-items:center;gap:.75rem;font-weight:800;font-size:1.1rem;letter-spacing:.2px}
-    .brand__logo-img{width:34px;height:34px;object-fit:cover;border-radius:.6rem;box-shadow:var(--shadow)}
-    .nav__links{display:flex;gap:1.1rem;align-items:center}
-    .nav__links a{color:var(--muted);font-weight:600}
-    .nav__links a:hover{color:var(--primary)}
-    .btn{padding:.6rem 1rem;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--fg);cursor:pointer;font-weight:600;box-shadow:var(--shadow)}
-    .btn--primary{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:var(--primary-contrast);border:0}
-
-    /* Hero */
-    .hero{padding:5rem 0 3.2rem}
-    .hero__grid{display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;align-items:center}
-    .hero__badge{display:inline-block;background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;padding:.3rem .8rem;border-radius:999px;font-size:.85rem;margin-bottom:1rem}
-    .hero__card{background:linear-gradient(180deg,rgba(14,165,233,.06),rgba(99,102,241,.06)),var(--surface);border:1px solid var(--border);padding:1.5rem;border-radius:var(--radius);box-shadow:var(--shadow)}
-
-    /* Sections */
-    section{padding:3rem 0}
-    .section__title{font-size:2rem;font-weight:800;margin:0 0 1rem}
-    .section__lead{color:var(--muted);margin:0 0 2rem}
-
-    /* Grids & Cards */
-    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
-    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
-    .card{background:var(--surface);border:1px solid var(--border);padding:1.2rem;border-radius:var(--radius);box-shadow:var(--shadow)}
-
-    /* Table */
-    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:.8rem;overflow:hidden}
-    th,td{padding:.75rem .9rem;border-bottom:1px solid var(--border);text-align:left}
-    thead th{background:rgba(14,165,233,.08);font-weight:700}
-    tbody tr:last-child td{border-bottom:0}
-
-    /* Gallery */
-    .gallery{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-    .gallery img{width:100%;height:200px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border)}
-
-    /* Footer */
-    footer{padding:2.2rem 0;border-top:1px solid var(--border);text-align:center;color:var(--muted)}
-
-    /* Modal (Auth) */
-    .modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(2,6,23,.55);backdrop-filter:blur(6px);z-index:100}
-    .modal__panel{width:min(520px,92%);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.25rem}
-    .tabs{display:flex;gap:.5rem;margin-bottom:.75rem}
-    .tab{flex:1;padding:.55rem;text-align:center;border:1px solid var(--border);border-radius:.6rem;cursor:pointer}
-    .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:var(--primary-contrast)}
-    .grid{display:grid;gap:.7rem}
-    .row{display:grid;gap:.3rem}
-
-    /* Responsive */
-    @media (max-width:980px){.hero__grid{grid-template-columns:1fr}}
-    @media (max-width:640px){.nav__links{display:none}.grid-3,.grid-2{grid-template-columns:1fr}}
-  </style>
+  <title>TechFlair – Start</title>
+  <meta name="description" content="TechFlair – MicroK8s Projektübersicht." />
+  <link rel="icon" href="./assets/Techflairlogo.png" type="image/png" />
+  <link rel="stylesheet" href="./assets/style.css" />
 </head>
 <body>
-  <!-- Header -->
-  <header>
-    <div class="container nav">
-      <div class="brand">
-        <img class="brand__logo-img" src="assets/techflair-logo.png" alt="TechFlair Logo" />
-        <span>TechFlair</span>
-      </div>
-      <nav class="nav__links">
-        <a href="#project">Projekt</a>
-        <a href="#architecture">Architektur</a>
-        <a href="#deliverables">Deliverables</a>
-        <a href="#run">Run</a>
-        <a href="#kontakt">Kontakt</a>
-        <a href="#admin" data-role="admin" class="hidden">Admin</a>
-      </nav>
-      <div style="display:flex;gap:.6rem;align-items:center">
-        <button id="loginBtn" class="btn">Anmelden</button>
-        <button id="logoutBtn" class="btn hidden">Abmelden</button>
-        <a class="btn btn--primary" href="#kontakt">Anfrage</a>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <!-- HERO -->
-    <section class="hero" id="project">
-      <div class="container hero__grid">
-        <div>
-          <span class="hero__badge">MicroK8s • Nginx • Ingress</span>
-          <h1>Projekt: MicroK8s-Cluster mit Webanwendung</h1>
-          <p class="section__lead">
-            Sauber getrennt: Diese Seite ist der <strong>Webauftritt</strong>. Der eigentliche
-            <strong>Projekt-Code</strong> liegt im Ordner <code>/project</code> (Skripte &amp; K8s-Manifeste).
-          </p>
-          <div style="display:flex;gap:.6rem;flex-wrap:wrap">
-            <a class="btn btn--primary" href="#deliverables">Zum Projekt-Ordner</a>
-            <a class="btn" href="#run">Installation / Run</a>
-          </div>
-        </div>
-        <div class="hero__card">
-          <strong>Ziele</strong>
-          <ul style="margin:.6rem 0 0 1.2rem">
-            <li>Cluster aufsetzen, Knoten per SSH erreichbar</li>
-            <li>Nginx bereitstellen (≥2 Replikas) + Service + Ingress</li>
-            <li>Basis-Monitoring &amp; Health-Checks</li>
-            <li>Automatisierung (Skripte &amp; Manifeste)</li>
-            <li>Doku &amp; Präsentation</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- ARCHITEKTUR -->
-    <section class="container" id="architecture" aria-labelledby="arch-title">
-      <h2 id="arch-title" class="section__title">Architektur</h2>
-      <p class="section__lead">Generisches Setup mit Control-Plane und Worker-Knoten. Netz &amp; Ingress abstrahiert.</p>
-
-      <div class="card" style="overflow:hidden">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:center">
-          <svg viewBox="0 0 600 240" role="img" aria-label="Architekturdiagramm" style="width:100%;max-width:100%;border-radius:.6rem;border:1px solid var(--border);background:#0c1424">
-            <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs>
-            <rect x="20" y="20" width="160" height="70" rx="10" stroke="url(#g)" fill="none"/>
-            <text x="30" y="60" fill="#e6edf3" font-size="14">Control-Plane (master)</text>
-            <rect x="220" y="20" width="160" height="70" rx="10" stroke="url(#g)" fill="none"/>
-            <text x="230" y="60" fill="#e6edf3" font-size="14">Worker 1</text>
-            <rect x="420" y="20" width="160" height="70" rx="10" stroke="url(#g)" fill="none"/>
-            <text x="430" y="60" fill="#e6edf3" font-size="14">Worker 2 (opt.)</text>
-            <line x1="100" y1="90" x2="100" y2="160" stroke="#2a3a55"/>
-            <line x1="300" y1="90" x2="300" y2="160" stroke="#2a3a55"/>
-            <line x1="500" y1="90" x2="500" y2="160" stroke="#2a3a55"/>
-            <rect x="60" y="160" width="480" height="60" rx="10" stroke="#2a3a55" fill="none"/>
-            <text x="75" y="195" fill="#9fb1c3" font-size="13">Netzwerk / Ingress / Service</text>
-          </svg>
-
-          <div>
-            <h3 style="margin:.2rem 0 1rem">IP-/Rollen-Plan (Beispiel)</h3>
-            <table>
-              <thead><tr><th>Hostname</th><th>Rolle</th><th>IP</th><th>OS</th><th>Hinweise</th></tr></thead>
-              <tbody>
-                <tr><td>cluster-master</td><td>Control-Plane</td><td>192.168.10.31</td><td>Ubuntu Server</td><td>MicroK8s, DNS/Ingress</td></tr>
-                <tr><td>cluster-worker1</td><td>Worker</td><td>192.168.10.32</td><td>Ubuntu Server</td><td>App-Pods</td></tr>
-                <tr><td>cluster-worker2</td><td>Worker (opt.)</td><td>192.168.10.33</td><td>Ubuntu Server</td><td>App-Pods</td></tr>
-                <tr><td>admin-pc</td><td>Management</td><td>192.168.10.20</td><td>Windows/Linux</td><td>kubectl / SSH</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-<!-- DELIVERABLES -->
-<section class="container" id="deliverables" aria-labelledby="deliv-title">
-  <h2 id="deliv-title" class="section__title">Deliverables (Projekt-Ordner)</h2>
-  <p class="section__lead">Diese Seite bleibt Präsentation. Der Projekt-Code liegt strukturiert unter <code>/project</code>.</p>
-  <div class="grid-2">
-    <div class="card">
-      <h3>Struktur</h3>
-      <pre><code>/project
-├── scripts
-│   └── bootstrap.sh
-├── k8s
-│   ├── deploy-nginx.yaml
-│   ├── service.yaml
-│   └── ingress.yaml
-└── docs
-    ├── netzplan.pdf
-    └── praesentation.pptx
-</code></pre>
-    </div>
-    <div class="card">
-      <h3>Downloads</h3>
-      <ul style="margin:.6rem 0 0 1.2rem">
-        <li><a href="project/scripts/bootstrap.sh" download>scripts/bootstrap.sh</a></li>
-        <li><a href="project/k8s/deploy-nginx.yaml" download>k8s/deploy-nginx.yaml</a></li>
-        <li><a href="project/k8s/service.yaml" download>k8s/service.yaml</a></li>
-        <li><a href="project/k8s/ingress.yaml" download>k8s/ingress.yaml</a></li>
-        <li><a href="project/docs/netzplan.pdf" download>docs/netzplan.pdf</a></li>
-        <li><a href="project/docs/praesentation.pptx" download>docs/praesentation.pptx</a></li>
-      </ul>
-      <p style="margin-top:.8rem;color:var(--muted)">
-        Hinweis: Lege deine Dateien lokal in diese Pfade, dann funktionieren die Links direkt.
-      </p>
+<header>
+  <div class="container nav">
+    <div class="brand"><img class="brand__logo-img" src="./assets/Techflairlogo.png" alt="TechFlair Logo" /></div>
+    <nav class="nav__links">
+      <a href="index.html">Start</a>
+      <a href="projekt.html">Projekt</a>
+      <a href="architektur.html">Architektur</a>
+      <a href="deliverables.html">Deliverables</a>
+      <a href="run.html">Run</a>
+      <a href="kontakt.html">Kontakt</a>
+      <a href="admin.html" data-role="admin" class="hidden">Admin</a>
+    </nav>
+    <div style="display:flex;gap:.6rem;align-items:center">
+      <button id="loginBtn" class="btn">Anmelden</button>
+      <button id="logoutBtn" class="btn hidden">Abmelden</button>
+      <a class="btn btn--primary" href="kontakt.html">Anfrage</a>
     </div>
   </div>
-</section>
+</header>
 
-
-    <!-- RUN -->
-    <section class="container" id="run" aria-labelledby="run-title">
-      <h2 id="run-title" class="section__title">Install & Run</h2>
-      <p class="section__lead">So startest du das Projekt auf frischen Serverknoten (Beispiel).</p>
-      <div class="grid-3">
-        <article class="card">
-          <h3>1) Bootstrap</h3>
-          <p>OS vorbereiten, MicroK8s installieren, Add-ons aktivieren.</p>
-          <pre style="overflow:auto;background:#0c1424;border:1px solid var(--border);padding:.9rem;border-radius:.6rem"><code>ssh user@cluster-master
-sudo bash project/scripts/bootstrap.sh</code></pre>
-        </article>
-        <article class="card">
-          <h3>2) Cluster bilden</h3>
-          <p>Worker beitreten lassen, Status prüfen.</p>
-          <pre style="overflow:auto;background:#0c1424;border:1px solid var(--border);padding:.9rem;border-radius:.6rem"><code>microk8s add-node   # master
-microk8s join ...   # auf Worker
-kubectl get nodes</code></pre>
-        </article>
-        <article class="card">
-          <h3>3) Deploy</h3>
-          <p>Nginx &amp; Ingress ausrollen, Erreichbarkeit testen.</p>
-          <pre style="overflow:auto;background:#0c1424;border:1px solid var(--border);padding:.9rem;border-radius:.6rem"><code>kubectl apply -f project/k8s/deploy-nginx.yaml
-kubectl apply -f project/k8s/service.yaml
-kubectl apply -f project/k8s/ingress.yaml
-kubectl get pods -A</code></pre>
-        </article>
-      </div>
-    </section>
-
-    <!-- KONTAKT -->
-    <section class="container" id="kontakt" aria-labelledby="kontakt-title">
-      <h2 id="kontakt-title" class="section__title">Kontakt</h2>
-      <p class="section__lead">Fragen oder Review gewünscht? Schreib uns kurz an.</p>
-      <form id="contactForm" class="grid" novalidate>
-        <div class="row"><label for="name">Name</label><input id="name" name="name" required placeholder="Max Mustermann"></div>
-        <div class="row"><label for="email">E-Mail</label><input id="email" name="email" type="email" required placeholder="max@example.org"></div>
-        <div class="row"><label for="message">Nachricht</label><textarea id="message" name="message" rows="4" required placeholder="Wie können wir helfen?"></textarea></div>
-        <div style="display:flex;gap:.6rem;align-items:center">
-          <button class="btn btn--primary" type="submit">Absenden</button>
-          <span id="formStatus" aria-live="polite"></span>
+<main>
+  <section class="hero">
+    <div class="container hero__grid">
+      <div>
+        <span class="hero__badge">MicroK8s • Nginx • Ingress</span>
+        <h1>Projekt: MicroK8s-Cluster mit Webanwendung</h1>
+        <p class="section__lead">Website = Präsentation. Projekt-Code liegt separat im Ordner <code>/project</code>.</p>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <a class="btn btn--primary" href="deliverables.html">Zum Projekt-Ordner</a>
+          <a class="btn" href="run.html">Installation / Run</a>
         </div>
-      </form>
-    </section>
-
-    <!-- ADMIN (optional) -->
-    <section class="container hidden" id="admin" aria-labelledby="admin-title">
-      <h2 id="admin-title" class="section__title">Admin-Dashboard</h2>
-      <p class="section__lead">Nur für Admins sichtbar. (Frontend-Demo für Rollen.)</p>
-      <div class="grid-3">
-        <article class="card"><h3>Artefakte</h3><p>6 Dateien verlinkt (lokal)</p></article>
-        <article class="card"><h3>Deploy-Notiz</h3><p id="admin-deploy">–</p></article>
-        <article class="card"><h3>Review-Status</h3><p id="admin-review">Offen</p></article>
       </div>
-    </section>
-  </main>
+      <div class="hero__card">
+        <strong>Ziele</strong>
+        <ul style="margin:.6rem 0 0 1.2rem">
+          <li>Cluster aufsetzen, Knoten per SSH erreichbar</li>
 
-  <footer>
-    <div class="container">© <span id="year"></span> – TechFlair. Website bleibt Website – Projekt liegt in <code>/project</code>.</div>
-  </footer>
-
-  <!-- AUTH MODAL -->
-  <div id="authModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-    <div class="modal__panel">
-      <div class="tabs" role="tablist">
-        <button id="tabLogin" class="tab" role="tab" aria-selected="true">Anmelden</button>
-        <button id="tabRegister" class="tab" role="tab" aria-selected="false">Registrieren</button>
-      </div>
-      <form id="loginForm" class="grid" autocomplete="on">
-        <div class="row"><label for="loginEmail">E-Mail</label><input id="loginEmail" type="email" required></div>
-        <div class="row"><label for="loginPassword">Passwort</label><input id="loginPassword" type="password" required></div>
-        <div style="display:flex;gap:.6rem;justify-content:flex-end">
-          <button class="btn" type="button" id="switchToRegister">Neu hier?</button>
-          <button class="btn btn--primary" type="submit">Login</button>
-        </div>
-        <p id="loginStatus" aria-live="polite"></p>
-      </form>
-      <form id="registerForm" class="grid hidden" autocomplete="on">
-        <div class="row"><label for="regName">Name</label><input id="regName" type="text" required></div>
-        <div class="row"><label for="regEmail">E-Mail</label><input id="regEmail" type="email" required></div>
-        <div class="row"><label for="regPassword">Passwort</label><input id="regPassword" type="password" required></div>
-        <div class="row"><label for="regKey">Admin-Schlüssel (optional)</label><input id="regKey" type="text" placeholder="TECHFLAIR-ADMIN"></div>
-        <small style="color:var(--muted)">Ohne gültigen Schlüssel: Rolle <strong>Benutzer</strong>.</small>
-        <div style="display:flex;gap:.6rem;justify-content:flex-end">
-          <button class="btn" type="button" id="switchToLogin">Schon ein Konto?</button>
-          <button class="btn btn--primary" type="submit">Registrieren</button>
-        </div>
-        <p id="registerStatus" aria-live="polite"></p>
-      </form>
-      <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
-        <button id="authClose" class="btn">Schließen</button>
+          <li>Basis-Monitoring & Health-Checks</li>
+          <li>Automatisierung (Skripte & Manifeste)</li>
+          <li>Doku & Präsentation</li>
+        </ul>
       </div>
     </div>
+  </section>
+</main>
+
+<footer><div class="container">© <span id="year"></span> – TechFlair.</div></footer>
+
+<!-- Auth-Modal -->
+<div id="authModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="modal__panel">
+    <div class="tabs" role="tablist">
+      <button id="tabLogin" class="tab" role="tab" aria-selected="true">Anmelden</button>
+      <button id="tabRegister" class="tab" role="tab" aria-selected="false">Registrieren</button>
+    </div>
+    <form id="loginForm" class="grid" autocomplete="on">
+      <div class="row"><label for="loginEmail">E-Mail</label><input id="loginEmail" type="email" required></div>
+      <div class="row"><label for="loginPassword">Passwort</label><input id="loginPassword" type="password" required></div>
+      <div style="display:flex;gap:.6rem;justify-content:flex-end">
+        <button class="btn" type="button" id="switchToRegister">Neu hier?</button>
+        <button class="btn btn--primary" type="submit">Login</button>
+      </div>
+      <p id="loginStatus" aria-live="polite"></p>
+    </form>
+    <form id="registerForm" class="grid hidden" autocomplete="on">
+      <div class="row"><label for="regName">Name</label><input id="regName" type="text" required></div>
+      <div class="row"><label for="regEmail">E-Mail</label><input id="regEmail" type="email" required></div>
+      <div class="row"><label for="regPassword">Passwort</label><input id="regPassword" type="password" required></div>
+      <small style="color:var(--muted)">Öffentliche Registrierung erstellt immer <strong>role=user</strong>.</small>
+      <div style="display:flex;gap:.6rem;justify-content:flex-end">
+        <button class="btn" type="button" id="switchToLogin">Schon ein Konto?</button>
+        <button class="btn btn--primary" type="submit">Registrieren</button>
+      </div>
+      <p id="registerStatus" aria-live="polite"></p>
+    </form>
+    <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
+      <button id="authClose" class="btn">Schließen</button>
+    </div>
   </div>
+</div>
 
-  <script>
-  (function(){
-    if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}else{init()}
-    function $(s){return document.querySelector(s)} function $all(s){return document.querySelectorAll(s)}
-    function init(){
-      const ADMIN_KEY='TECHFLAIR-ADMIN', STORAGE='tf_user';
-      const loginBtn=$('#loginBtn'), logoutBtn=$('#logoutBtn');
-      const modal=$('#authModal'), closeBtn=$('#authClose');
-      const tabLogin=$('#tabLogin'), tabRegister=$('#tabRegister');
-      const loginForm=$('#loginForm'), registerForm=$('#registerForm');
-      const loginStatus=$('#loginStatus'), registerStatus=$('#registerStatus');
-      const adminDeploy=$('#admin-deploy');
-
-      function getUser(){try{return JSON.parse(localStorage.getItem(STORAGE))}catch{return null}}
-      function setUser(u){localStorage.setItem(STORAGE,JSON.stringify(u))}
-      function clearUser(){localStorage.removeItem(STORAGE)}
-      function applyAuth(){
-        const u=getUser(), isLogged=!!u, isAdmin=isLogged&&u.role==='admin';
-        if(loginBtn) loginBtn.classList.toggle('hidden',isLogged);
-        if(logoutBtn) logoutBtn.classList.toggle('hidden',!isLogged);
-        $all('#admin,[data-role="admin"]').forEach(el=>el.classList.toggle('hidden',!isAdmin));
-      }
-      function open(){modal&&modal.classList.remove('hidden')}
-      function close(){modal&&modal.classList.add('hidden')}
-      function showLogin(){tabLogin.setAttribute('aria-selected','true');tabRegister.setAttribute('aria-selected','false');loginForm.classList.remove('hidden');registerForm.classList.add('hidden')}
-      function showRegister(){tabLogin.setAttribute('aria-selected','false');tabRegister.setAttribute('aria-selected','true');loginForm.classList.add('hidden');registerForm.classList.remove('hidden')}
-
-      loginBtn&& (loginBtn.onclick=()=>{open();showLogin()})
-      logoutBtn&& (logoutBtn.onclick=()=>{clearUser();applyAuth()})
-      closeBtn&& (closeBtn.onclick=close)
-      $('#switchToRegister')?.addEventListener('click',()=>showRegister())
-      $('#switchToLogin')?.addEventListener('click',()=>showLogin())
-      modal?.addEventListener('click',e=>{if(e.target===modal)close()})
-      tabLogin?.addEventListener('click',showLogin)
-      tabRegister?.addEventListener('click',showRegister)
-
-      loginForm?.addEventListener('submit',e=>{
-        e.preventDefault(); loginStatus.textContent='';
-        const email=$('#loginEmail')?.value.trim()||''; const saved=getUser();
-        if(!saved||saved.email!==email){loginStatus.textContent='Kein Konto gefunden. Bitte registrieren.';return}
-        applyAuth(); close();
-      })
-      registerForm?.addEventListener('submit',e=>{
-        e.preventDefault(); registerStatus.textContent='';
-        const name=$('#regName')?.value.trim()||'', email=$('#regEmail')?.value.trim()||'', pw=$('#regPassword')?.value||'', key=$('#regKey')?.value.trim()||'';
-        if(!name||!email||pw.length<4){registerStatus.textContent='Bitte gültige Angaben machen.';return}
-        const role=(key===ADMIN_KEY)?'admin':'user'; setUser({name,email,role}); applyAuth(); close();
-      })
-
-      // Kontaktformular
-      const form=$('#contactForm'), statusEl=$('#formStatus');
-      form?.addEventListener('submit',e=>{
-        e.preventDefault(); const d=new FormData(form);
-        if(!d.get('name')||!d.get('email')||!d.get('message')){statusEl.textContent='Bitte alle Felder ausfüllen.';return}
-        form.reset(); statusEl.textContent='Danke! Wir melden uns zeitnah.';
-      })
-
-      // Admin: Demo-Deploy-Notiz
-      document.querySelector('#run .grid-3')?.addEventListener('click',e=>{
-        if(e.target.tagName==='CODE' || e.target.closest('pre')){return}
-      })
-      adminDeploy && (adminDeploy.textContent='Bereitgestellt: –')
-
-      // Footer
-      $('#year').textContent=new Date().getFullYear();
-
-      applyAuth();
-    }
-  })();
-  </script>
+<script src="./assets/app.js"></script>
 </body>
 </html>
